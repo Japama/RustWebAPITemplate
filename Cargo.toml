@@ -1,11 +1,11 @@
 [package]
-name = "SportsGuide"
+name = "sports-guide"
 version = "0.1.0"
 edition = "2021"
 authors = ["Juan Bautista Valero Carrasco <jbvc91@gmail.com>"]
 description = "App for coaches"
-homepage="https://awesomeapp.dev"
-repository = "https://github.com/awesomeapp-dev/rust-web-app"
+homepage=""
+repository = ""
 
 
 [dependencies]

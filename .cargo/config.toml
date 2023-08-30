@@ -1,0 +1,17 @@
+# Cargo config gile
+
+# Environments variables set for all `cargo ...` commands.
+[env]
+
+# Scope down tracing, to filter out external lib tracing
+RUST_LOG="sports_guide=debug"
+
+# -- Service Environment Variables
+# IMPORTANT:
+#   For cargo commands only.
+#   For deployed env, should be managed by container
+#   (e.g., Kubernetes).
+
+## -- ConfigMap
+
+SERVICE_WEB_FOLDER="web-folder/"
