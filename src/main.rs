@@ -8,7 +8,9 @@ mod error;
 mod log;
 mod model;
 mod web;
+
 // #[cfg(test)] // Commented during early development.
+pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
 pub use config::config; // = -> use crate::config
@@ -43,11 +45,13 @@ async fn main() -> Result<()> {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
+    // -- FOR DEV ONLY
+    _dev_utils::init_dev().await;
+
     // Initialize ModelManager
     let mm = ModelManager::new().await?;
 
     let routes_all = Router::new()
-        .merge((routes_hello()))
         .merge(web::routes_login::routes())
         // .nest("/api", routes_apis)
         // .layer(middleware::map_response(main_response_mapper))
@@ -69,27 +73,3 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
-
-// region: Routes Hello
-fn routes_hello() -> Router {
-    Router::new()
-        .route("/hello", get(handler_hello))
-        .route("/helloName/:name", get(handler_hello_name))
-}
-
-#[derive(Debug, Deserialize)]
-struct HelloParams {
-    name: Option<String>,
-}
-async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
-    println!(" --> {:<12} - handler_hello - {params:?}", "HANDLER");
-    let name = params.name.as_deref().unwrap_or("World!");
-    Html(format!("Hello <strong>{name}</strong>"))
-}
-
-async fn handler_hello_name(Path(name): Path<String>) -> impl IntoResponse {
-    println!(" --> {:<12} - handler_hello_name - {name:?}", "HANDLER");
-    Html(format!("Hello <strong>{name}</strong>"))
-}
-
-// endregion: Handler Hello

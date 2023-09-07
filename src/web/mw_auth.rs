@@ -79,14 +79,14 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
 /// Parse a token of format 'user-[user-id].[expiration].[signature]'
 /// Returns (user_id, expiration, signature)
 
-fn parse_token(token: String) -> Result<(u64, String, String)> {
+fn parse_token(token: String) -> Result<(i64, String, String)> {
     let (_whole, user_id, exp, sign) = regex_captures!(
         r#"^user-(\d+)\.(.+)\.(.+)"#, // a literal regex
         &token
     )
     .ok_or(Error::AuthFailTokenWrongFormat)?;
 
-    let user_id: u64 = user_id
+    let user_id: i64 = user_id
         .parse()
         .map_err(|_| Error::AuthFailTokenWrongFormat)?;
 

@@ -12,6 +12,13 @@ RUST_LOG="sports_guide=debug"
 #   For deployed env, should be managed by container
 #   (e.g., Kubernetes).
 
+## -- Serets
+# Keys and passwords below are for localhost dev ONLY.
+# e.g., "welcome" type of passwords.
+# i.e., Encription not needed.
+
+SERVICE_DB_URL="postgres://postgres:japama@localhost/app_db"
+
 ## -- ConfigMap
 
 SERVICE_WEB_FOLDER="web-folder/"
