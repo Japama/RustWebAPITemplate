@@ -19,6 +19,12 @@ RUST_LOG="sports_guide=debug"
 
 SERVICE_DB_URL="postgres://postgres:japama@localhost/app_db"
 
+SERVICE_PWD_KEY="gTNvn7X9LtlrgTtjCA5Sm5RHSSZ1YP_8kN2_U4Rj21fTvCHRrZu0YQPMnZNHvhQPaf8Hm40AAye8IuzZLyqijw"
+
+SERVICE_TOKEN_KEY="UxYFNlatBv_YTaQgsn5-7udXjNf5qPJYkrllzZ8KTuDZU_mpETgRHVJWcVOBrMB4YhkxS7rNFeU9ATBfHspVJA"
+SERVICE_TOKEN_DURATION_SEC="1800"  # 30 min
+
+
 ## -- ConfigMap
 
 SERVICE_WEB_FOLDER="web-folder/"

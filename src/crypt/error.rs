@@ -4,7 +4,11 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
-	FailToCreatePool(String),
+	// Key
+	KeyFailHmac,
+
+	// -- Pwd
+	PwdNotMatching,
 }
 
 // region:    --- Error Boilerplate
