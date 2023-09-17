@@ -35,9 +35,12 @@ time = "0.3"
 lazy-regex = "3"
 async-trait = "0.1"
 strum_macros = "0.25"
-
+# -- MongoDB
+mongodb = { version = "2.3.1", features = ["bson-chrono-0_4"] }
+bson = { version = "2", features = ["chrono-0_4"] } # Needed for using chrono datetime in doc
 
 [dev-dependencies]
 anyhow = "1"
 httpc-test = "0.1.1"
 serial_test = "2"
+

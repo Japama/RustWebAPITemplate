@@ -17,7 +17,9 @@ RUST_LOG="sports_guide=debug"
 # e.g., "welcome" type of passwords.
 # i.e., Encription not needed.
 
-SERVICE_DB_URL="postgres://postgres:japama@localhost/app_db"
+SERVICE_DB_URL="postgres://postgres:japama@localhost/sports_guide"
+
+SERVICE_MONGO_DB_URL="mongodb://192.168.80.131:27017"
 
 SERVICE_PWD_KEY="gTNvn7X9LtlrgTtjCA5Sm5RHSSZ1YP_8kN2_U4Rj21fTvCHRrZu0YQPMnZNHvhQPaf8Hm40AAye8IuzZLyqijw"
 

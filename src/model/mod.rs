@@ -19,34 +19,44 @@
 
 // region:    --- Modules
 
+pub mod activity;
 mod base;
 mod error;
+pub mod sport;
 mod store;
 pub mod task;
 pub mod user;
 
 pub use self::error::{Error, Result};
 
-use crate::model::store::{new_db_pool, Db};
+use crate::model::store::{new_db_pool, new_mongo_client, MongoDb, PostgresDb};
 
 // endregion: --- Modules
 
 #[derive(Clone)]
 pub struct ModelManager {
-	db: Db,
+    postgres_db: PostgresDb,
+    mongo_db: MongoDb,
 }
 
 impl ModelManager {
-	/// Constructor
-	pub async fn new() -> Result<Self> {
-		let db = new_db_pool().await?;
+    /// Constructor
+    pub async fn new() -> Result<Self> {
+        let postgres_db = new_db_pool().await?;
+        let mongo_db = new_mongo_client().await?;
 
-		Ok(ModelManager { db })
-	}
+        Ok(ModelManager {
+            postgres_db,
+            mongo_db,
+        })
+    }
 
-	/// Returns the sqlx db pool reference.
-	/// (Only for the model layer)
-	pub(in crate::model) fn db(&self) -> &Db {
-		&self.db
-	}
+    /// Returns the sqlx db pool reference.
+    /// (Only for the model layer)
+    pub(in crate::model) fn postgres_db(&self) -> &PostgresDb {
+        &self.postgres_db
+    }
+    pub(in crate::model) fn mongo_db(&self) -> &MongoDb {
+        &self.mongo_db
+    }
 }
