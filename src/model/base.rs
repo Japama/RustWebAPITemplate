@@ -196,6 +196,37 @@ where
     Ok(json!(documents))
 }
 
+pub async fn update_mongo<MC>(
+    ctx: &Ctx,
+    mm: &ModelManager,
+    oid: ObjectId,
+    data: Value,
+) -> Result<()>
+where
+    MC: MongoDbBmc,
+{
+    let db = mm.mongo_db().database(MC::DATABASE);
+    let collection: Collection<Value> = db.collection(MC::COLLECTION);
+
+    let filter = doc! {"_id": oid};
+    let update_bson = bson::to_bson(&data).map_err(|e| Error::MongoQueryError(e.to_string()))?;
+    let update_doc = doc! {"$set": update_bson};
+
+    match collection.update_one(filter, update_doc, None).await {
+        Ok(result) => {
+            if result.modified_count == 1 {
+                Ok(())
+            } else {
+                Err(Error::MongoEntityNotFound {
+                    entity: MC::COLLECTION,
+                    id: oid.to_string(),
+                })
+            }
+        }
+        Err(e) => Err(Error::MongoQueryError(e.to_string())),
+    }
+}
+
 pub async fn delete_mongo<MC>(ctx: &Ctx, mm: &ModelManager, oid: ObjectId) -> Result<()>
 where
     MC: MongoDbBmc,

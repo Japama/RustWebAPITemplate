@@ -50,7 +50,7 @@ pub struct ActivityForCreate {
     user_id: i64,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ActivityForUpdate {
     category: Category,
     description: String,
@@ -91,6 +91,17 @@ impl ActivityBmc {
         let activities: Vec<Activity> =
             serde_json::from_value(value).map_err(|err| MongoQueryError(err.to_string()))?;
         Ok(activities)
+    }
+
+    pub async fn update(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        id: String,
+        activity_u: ActivityForUpdate,
+    ) -> Result<()> {
+        let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id))?;
+        let activity = to_value(activity_u).unwrap();
+        base::update_mongo::<Self>(ctx, mm, oid, activity).await
     }
 
     pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: String) -> Result<()> {
@@ -182,67 +193,7 @@ mod tests {
 
     #[serial]
     #[tokio::test]
-    async fn test_delete_activity_ok() -> Result<()> {
-        // -- Setup & Fixtures
-        let mm = _dev_utils::init_test().await;
-        let ctx = Ctx::root_ctx();
-        let name = "Ejemplo de Actividad".to_string();
-        let activity_c = ActivityForCreate {
-            name: name.clone(),
-            sport_id: 123,
-            category: Category::Senior,
-            description: "Esta es una actividad de muestra.".to_string(),
-            multimedia_links: vec![
-                "https://ejemplo.com/imagen1.jpg".to_string(),
-                "https://ejemplo.com/video.mp4".to_string(),
-            ],
-            rating: 4.5,
-            tags: vec!["deporte".to_string(), "aire libre".to_string()],
-            user_id: ctx.user_id(),
-        };
-
-        // -- Exec
-        let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
-
-        // -- Check
-        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
-        assert_eq!(activity.name, name);
-
-        // -- Clean
-        ActivityBmc::delete(&ctx, &mm, id).await?;
-
-        Ok(())
-    }
-
-    #[serial]
-    #[tokio::test]
-    async fn test_delete_activity_err_not_found() -> Result<()> {
-        // -- Setup & Fixtures
-        let mm = _dev_utils::init_test().await;
-        let ctx = Ctx::root_ctx();
-        let id = "65078008c1318fdcd4797c91".to_string();
-
-        // -- Exec
-        let res = ActivityBmc::delete(&ctx, &mm, id).await;
-
-        // -- Check
-        assert!(
-            matches!(
-                res,
-                Err(Error::MongoEntityNotFound {
-                    entity: "activities",
-                    id
-                })
-            ),
-            "EntityNotFound not matching"
-        );
-
-        Ok(())
-    }
-
-    #[serial]
-    #[tokio::test]
-    async fn test_list_activity_ok() -> Result<()> {
+    async fn test_list_activities_ok() -> Result<()> {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
@@ -291,6 +242,79 @@ mod tests {
         for activity in activities {
             ActivityBmc::delete(&ctx, &mm, activity._id.to_hex()).await?;
         }
+
+        Ok(())
+    }
+    #[serial]
+    #[tokio::test]
+    async fn test_update_activity_ok() -> Result<()> {
+        // -- Setup & Fixtures
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+
+        let desc1 = "Ejemplo de Actividad - 1".to_string();
+        let desc2 = "Ejemplo de Actividad - 2".to_string();
+
+        let activity_c = ActivityForCreate {
+            name: "Actividad".to_string(),
+            sport_id: 123,
+            category: Category::Senior,
+            description: desc1.clone(),
+            multimedia_links: vec![
+                "https://ejemplo.com/imagen1.jpg".to_string(),
+                "https://ejemplo.com/video.mp4".to_string(),
+            ],
+            rating: 4.5,
+            tags: vec!["deporte".to_string(), "aire libre".to_string()],
+            user_id: ctx.user_id(),
+        };
+
+        let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
+        let activity_init = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+        assert_eq!(desc1, activity_init.description);
+
+        let activity_u = ActivityForUpdate {
+            category: Category::Sub10,
+            description: desc2.clone(),
+            multimedia_links: activity_init.multimedia_links,
+            rating: activity_init.rating,
+            tags: activity_init.tags,
+        };
+
+        // -- Exec
+        let activity = ActivityBmc::update(&ctx, &mm, id.clone(), activity_u).await?;
+        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+
+        // -- Check
+        assert_eq!(activity.description, desc2, "Description change");
+
+        // -- Clean
+        ActivityBmc::delete(&ctx, &mm, activity._id.to_hex()).await?;
+
+        Ok(())
+    }
+    #[serial]
+    #[tokio::test]
+    async fn test_delete_activity_err_not_found() -> Result<()> {
+        // -- Setup & Fixtures
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let id = "65078008c1318fdcd4797c91".to_string();
+
+        // -- Exec
+        let res = ActivityBmc::delete(&ctx, &mm, id).await;
+
+        // -- Check
+        assert!(
+            matches!(
+                res,
+                Err(Error::MongoEntityNotFound {
+                    entity: "activities",
+                    id
+                })
+            ),
+            "EntityNotFound not matching"
+        );
 
         Ok(())
     }
