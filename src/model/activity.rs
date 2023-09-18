@@ -153,16 +153,29 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let name = "Ejemplo de Actividad".to_string();
-        let oid = "65084e6f5fde118187b6397f".to_string();
+        let activity_c = ActivityForCreate {
+            name: name.clone(),
+            sport_id: 123,
+            category: Category::Senior,
+            description: "Esta es una actividad de muestra.".to_string(),
+            multimedia_links: vec![
+                "https://ejemplo.com/imagen1.jpg".to_string(),
+                "https://ejemplo.com/video.mp4".to_string(),
+            ],
+            rating: 4.5,
+            tags: vec!["deporte".to_string(), "aire libre".to_string()],
+            user_id: ctx.user_id(),
+        };
+        let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
 
         // -- Exec
-        let activity = ActivityBmc::get(&ctx, &mm, oid).await?;
+        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
 
         // -- Check
         assert_eq!(activity.name, name);
 
         // -- Clean
-        // TaskBmc::delete(&ctx, &mm, id).await?;
+        ActivityBmc::delete(&ctx, &mm, id).await?;
 
         Ok(())
     }
