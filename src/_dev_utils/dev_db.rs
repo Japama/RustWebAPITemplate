@@ -1,9 +1,14 @@
 use crate::config;
 use crate::ctx::Ctx;
+use crate::model::activity::Activity;
 use crate::model::user::{User, UserBmc};
 use crate::model::ModelManager;
+use bson::doc;
+use bson::Bson::Document;
 use mongodb::options::ClientOptions;
+use mongodb::results::CollectionType::Collection;
 use mongodb::Client;
+use serde_json::{json, Value};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
@@ -15,6 +20,9 @@ type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
 const MDB_DEV_MONGODB_URL: &str = "mongodb://192.168.80.131:27017";
+const MDB_DEV_MONGODB_DATABASE: &str = "sportsGuide";
+const MDB_DEV_MONGODB_COLLECTION: &str = "activities";
+
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@localhost/postgres";
 
 const PG_DEV_APP_URL: &str = "postgres://postgres:japama@localhost/sports_guide";
@@ -75,10 +83,32 @@ pub async fn init_dev_mongodb() -> Result<(), Box<dyn std::error::Error>> {
 
     // -- Create the sports_guide/app_user_db with the postgres user
     if let Ok(root_db) = new_mongo_client(MDB_DEV_MONGODB_URL).await {
+        // // Eliminar la base de datos
+        // root_db
+        //     .database(MDB_DEV_MONGODB_DATABASE)
+        //     .drop(None)
+        //     .await?;
+        //
+        // // Crear la base de datos nuevamente (esto creará una base de datos vacía)
+        // let create_command = doc! { "create": MDB_DEV_MONGODB_DATABASE };
+        // root_db
+        //     .database(MDB_DEV_MONGODB_DATABASE)
+        //     .run_command(create_command, None)
+        //     .await?;
+        let db = root_db.database(MDB_DEV_MONGODB_DATABASE);
+        let collection = db.collection::<Activity>(MDB_DEV_MONGODB_COLLECTION);
+        collection.drop(None).await?;
+        db.create_collection(MDB_DEV_MONGODB_COLLECTION, None)
+            .await?;
+
         // info!("{:<12} - init_dev_mongodb()", "FOR-DEV-ONLY");
     } else {
         eprintln!("Error connecting to the MongoDB database.");
     }
+
+    let mm = ModelManager::new().await?;
+    let ctx = Ctx::root_ctx();
+
     Ok(())
 }
 

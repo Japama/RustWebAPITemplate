@@ -17,8 +17,10 @@ pub enum Error {
     // -- Externals
     Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error),
 
-    MongoDuplicateError,
-    MongoQueryError,
+    MongoEntityNotFound { entity: &'static str, id: String },
+    MongoInvalidIDError(String),
+    MongoDuplicateError(String),
+    MongoQueryError(String),
 }
 
 // region:    --- Froms
@@ -42,16 +44,14 @@ impl From<sqlx::Error> for Error {
 
 impl From<mongodb::error::Error> for Error {
     fn from(error: mongodb::error::Error) -> Self {
-        // Ejemplo:
         if error
             .to_string()
             .contains("E11000 duplicate key error collection")
         {
-            return Error::MongoDuplicateError;
+            return Error::MongoDuplicateError("Duplicate key".to_string());
         }
 
-        // Si no es un error de duplicado, puedes manejarlo de otras formas o devolver un error genérico.
-        Error::MongoQueryError
+        Error::MongoQueryError("There was an error".to_string())
     }
 }
 

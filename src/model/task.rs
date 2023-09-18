@@ -66,6 +66,7 @@ mod tests {
     use crate::_dev_utils;
     use anyhow::Result;
     use serial_test::serial;
+    use tracing::info;
 
     #[serial]
     #[tokio::test]
