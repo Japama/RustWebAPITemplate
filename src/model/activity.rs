@@ -75,13 +75,13 @@ impl ActivityBmc {
         activity_c: ActivityForCreate,
     ) -> Result<String> {
         let activity = to_value(activity_c).unwrap();
-        let id: String = base::create_mongo::<Self>(ctx, mm, activity).await.unwrap();
+        let id: String = base::create_mongo::<Self>(ctx, mm, activity).await?;
         Ok(id)
     }
 
     pub async fn get(ctx: &Ctx, mm: &ModelManager, id: &str) -> Result<Activity> {
         let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id.to_owned()))?;
-        let value: Value = base::get_mongo::<Self>(ctx, mm, oid).await.unwrap();
+        let value: Value = base::get_mongo::<Self>(ctx, mm, oid).await?;
         let activity: Activity = from_value(value).unwrap();
         Ok(activity)
     }

@@ -20,6 +20,8 @@ type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
 const MDB_DEV_MONGODB_URL: &str = "mongodb://192.168.80.131:27017";
+const MDB_DEV_MONGODB_ATLAS_URL: &str =
+    "mongodb+srv://jbvc91:ICy89kEfX5PaP3ij@psg.jodkz9a.mongodb.net/?retryWrites=true&w=majority";
 const MDB_DEV_MONGODB_DATABASE: &str = "sportsGuide";
 const MDB_DEV_MONGODB_COLLECTION: &str = "activities";
 
@@ -82,6 +84,7 @@ pub async fn init_dev_mongodb() -> Result<(), Box<dyn std::error::Error>> {
     info!("{:<12} - init_dev_mongodb()", "FOR-DEV-ONLY");
 
     // -- Create the sports_guide/app_user_db with the postgres user
+    // if let Ok(root_db) = new_mongo_client(MDB_DEV_MONGODB_ATLAS_URL).await {
     if let Ok(root_db) = new_mongo_client(MDB_DEV_MONGODB_URL).await {
         // // Eliminar la base de datos
         // root_db
@@ -97,9 +100,9 @@ pub async fn init_dev_mongodb() -> Result<(), Box<dyn std::error::Error>> {
         //     .await?;
         let db = root_db.database(MDB_DEV_MONGODB_DATABASE);
         let collection = db.collection::<Activity>(MDB_DEV_MONGODB_COLLECTION);
-        collection.drop(None).await?;
-        db.create_collection(MDB_DEV_MONGODB_COLLECTION, None)
-            .await?;
+        // collection.drop(None).await?;
+        // db.create_collection(MDB_DEV_MONGODB_COLLECTION, None)
+        //     .await?;
 
         // info!("{:<12} - init_dev_mongodb()", "FOR-DEV-ONLY");
     } else {
@@ -138,6 +141,7 @@ async fn new_db_pool(db_con_url: &str) -> Result<Db, sqlx::Error> {
 
 pub async fn new_mongo_client(db_con_url: &str) -> Result<Client, mongodb::error::Error> {
     let mut client_options = ClientOptions::parse(db_con_url).await?;
+    client_options.connect_timeout = Some(Duration::from_millis(500));
     let client = Client::with_options(client_options)?;
     Ok(client)
 }

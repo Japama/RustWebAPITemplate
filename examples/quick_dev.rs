@@ -130,7 +130,7 @@ async fn check_activity() -> Result<()> {
             "id": 1,
             "method": "get_activity",
             "params": {
-                "id": id // TODO: Si no es correcto dará un error raro Hay que arreglar eso
+                "id": id
             }
         }),
     );
@@ -175,7 +175,7 @@ async fn check_activity() -> Result<()> {
             "id": 1,
             "method": "delete_activity",
             "params": {
-                "id": id // Harcode the activity id
+                "id": id
             }
         }),
     );
