@@ -1,9 +1,13 @@
 // region: Modules
 
+mod activity_rpc;
 mod task_rpc;
 
 use crate::ctx::Ctx;
 use crate::model::ModelManager;
+use crate::web::rpc::activity_rpc::{
+    create_activity, delete_activity, get_activity, list_activities, update_activity,
+};
 use crate::web::rpc::task_rpc::{create_task, delete_task, list_tasks, update_task};
 use crate::web::{Error, Result};
 use axum::extract::State;
@@ -35,10 +39,20 @@ pub struct ParamsForUpdate<D> {
     id: i64,
     data: D,
 }
+#[derive(Deserialize)]
+pub struct ParamsForUpdateMongo<D> {
+    id: String,
+    data: D,
+}
 
 #[derive(Deserialize)]
 pub struct ParamsIded {
     id: i64,
+}
+
+#[derive(Deserialize)]
+pub struct ParamsIdedMongo {
+    id: String,
 }
 
 // endregion: JSON-RPC Request Body
@@ -110,6 +124,13 @@ async fn _rpc_handler(ctx: Ctx, mm: ModelManager, rpc_req: RpcRequest) -> Result
         "list_tasks" => exec_rpc_fn!(list_tasks, ctx, mm),
         "update_task" => exec_rpc_fn!(update_task, ctx, mm, rpc_params),
         "delete_task" => exec_rpc_fn!(delete_task, ctx, mm, rpc_params),
+
+        // Activity RPC methods
+        "create_activity" => exec_rpc_fn!(create_activity, ctx, mm, rpc_params),
+        "get_activity" => exec_rpc_fn!(get_activity, ctx, mm, rpc_params),
+        "list_activities" => exec_rpc_fn!(list_activities, ctx, mm),
+        "update_activity" => exec_rpc_fn!(update_activity, ctx, mm, rpc_params),
+        "delete_activity" => exec_rpc_fn!(delete_activity, ctx, mm, rpc_params),
 
         // Fallback as Err
         _ => return Err(Error::RpcMethodUnknown(rpc_method)),

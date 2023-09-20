@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{from_value, json, to_value, Value};
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 enum Category {
     Senior,
     Sub23,
@@ -25,7 +25,7 @@ enum Category {
 
 // region: Activity types
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Activity {
     _id: ObjectId,
     name: String,
@@ -38,7 +38,7 @@ pub struct Activity {
     user_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ActivityForCreate {
     name: String,
     sport_id: i32,
@@ -79,7 +79,7 @@ impl ActivityBmc {
         Ok(id)
     }
 
-    pub async fn get(ctx: &Ctx, mm: &ModelManager, id: String) -> Result<Activity> {
+    pub async fn get(ctx: &Ctx, mm: &ModelManager, id: &str) -> Result<Activity> {
         let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id.to_owned()))?;
         let value: Value = base::get_mongo::<Self>(ctx, mm, oid).await.unwrap();
         let activity: Activity = from_value(value).unwrap();
@@ -96,22 +96,21 @@ impl ActivityBmc {
     pub async fn update(
         ctx: &Ctx,
         mm: &ModelManager,
-        id: String,
+        id: &str,
         activity_u: ActivityForUpdate,
     ) -> Result<()> {
-        let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id))?;
+        let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id.to_string()))?;
         let activity = to_value(activity_u).unwrap();
         base::update_mongo::<Self>(ctx, mm, oid, activity).await
     }
 
-    pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: String) -> Result<()> {
-        let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id))?;
+    pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: &str) -> Result<()> {
+        let oid = ObjectId::from_str(&id).map_err(|_| MongoInvalidIDError(id.to_string()))?;
         base::delete_mongo::<Self>(ctx, mm, oid).await
     }
 }
 
 // region: Tests
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -119,6 +118,7 @@ mod tests {
     use crate::model::base::create;
     use crate::model::task::{Task, TaskBmc};
     use anyhow::Result;
+    use bson::Uuid;
     use serial_test::serial;
     use std::thread::sleep;
     use std::time::Duration;
@@ -148,11 +148,11 @@ mod tests {
         let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
 
         // -- Check
-        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+        let activity = ActivityBmc::get(&ctx, &mm, &id).await?;
         assert_eq!(activity.name, name);
 
         // -- Clean
-        // ActivityBmc::delete(&ctx, &mm, id).await?;
+        ActivityBmc::delete(&ctx, &mm, &id).await?;
 
         Ok(())
     }
@@ -180,13 +180,13 @@ mod tests {
         let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
 
         // -- Exec
-        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+        let activity = ActivityBmc::get(&ctx, &mm, &id).await?;
 
         // -- Check
         assert_eq!(activity.name, name);
 
         // -- Clean
-        ActivityBmc::delete(&ctx, &mm, id).await?;
+        ActivityBmc::delete(&ctx, &mm, &id).await?;
 
         Ok(())
     }
@@ -240,7 +240,7 @@ mod tests {
 
         // -- Clean
         for activity in activities {
-            ActivityBmc::delete(&ctx, &mm, activity._id.to_hex()).await?;
+            ActivityBmc::delete(&ctx, &mm, &activity._id.to_hex()).await?;
         }
 
         Ok(())
@@ -253,8 +253,6 @@ mod tests {
         let ctx = Ctx::root_ctx();
 
         let desc1 = "Ejemplo de Actividad - 1".to_string();
-        let desc2 = "Ejemplo de Actividad - 2".to_string();
-
         let activity_c = ActivityForCreate {
             name: "Actividad".to_string(),
             sport_id: 123,
@@ -270,9 +268,11 @@ mod tests {
         };
 
         let id = ActivityBmc::create(&ctx, &mm, activity_c).await?;
-        let activity_init = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+        let activity_init = ActivityBmc::get(&ctx, &mm, &id).await?;
         assert_eq!(desc1, activity_init.description);
 
+        let rand = Uuid::new().to_string();
+        let desc2 = "Ejemplo de Actividad - ".to_string() + &rand;
         let activity_u = ActivityForUpdate {
             category: Category::Sub10,
             description: desc2.clone(),
@@ -282,14 +282,14 @@ mod tests {
         };
 
         // -- Exec
-        let activity = ActivityBmc::update(&ctx, &mm, id.clone(), activity_u).await?;
-        let activity = ActivityBmc::get(&ctx, &mm, id.clone()).await?;
+        let activity = ActivityBmc::update(&ctx, &mm, &id, activity_u).await?;
+        let activity = ActivityBmc::get(&ctx, &mm, &id).await?;
 
         // -- Check
         assert_eq!(activity.description, desc2, "Description change");
 
         // -- Clean
-        ActivityBmc::delete(&ctx, &mm, activity._id.to_hex()).await?;
+        ActivityBmc::delete(&ctx, &mm, &activity._id.to_hex()).await?;
 
         Ok(())
     }
@@ -302,7 +302,7 @@ mod tests {
         let id = "65078008c1318fdcd4797c91".to_string();
 
         // -- Exec
-        let res = ActivityBmc::delete(&ctx, &mm, id).await;
+        let res = ActivityBmc::delete(&ctx, &mm, &id).await;
 
         // -- Check
         assert!(
@@ -319,5 +319,4 @@ mod tests {
         Ok(())
     }
 }
-
 // endregion: Tests
