@@ -12,7 +12,7 @@ async fn main() -> Result<()> {
 }
 
 async fn check_task() -> Result<()> {
-    let hc = httpc_test::new_client("http://localhost:8080")?;
+    let hc = httpc_test::new_client("http://localhost:8081")?;
 
     let req_login = hc.do_post(
         "/api/login",
@@ -86,7 +86,7 @@ async fn check_task() -> Result<()> {
 }
 
 async fn check_activity() -> Result<()> {
-    let hc = httpc_test::new_client("http://localhost:8080")?;
+    let hc = httpc_test::new_client("http://localhost:8081")?;
 
     let req_login = hc.do_post(
         "/api/login",
