@@ -52,11 +52,12 @@ async fn main() -> Result<()> {
     let origins = [
         "http://192.168.3.3:8080".parse().unwrap(),
         "http://localhost:8080".parse().unwrap(),
+        "http://localhost:3000".parse().unwrap(),
     ];
 
     let cors = CorsLayer::new()
         // allow `GET` and `POST` when accessing the resource
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_methods([Method::POST, Method::OPTIONS])
         // allow requests from any origin
         .allow_origin(origins)
         .allow_headers([CONTENT_TYPE, ACCESS_CONTROL_ALLOW_ORIGIN]);
