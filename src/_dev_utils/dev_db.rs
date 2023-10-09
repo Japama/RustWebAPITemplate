@@ -25,9 +25,9 @@ const MDB_DEV_MONGODB_ATLAS_URL: &str =
 const MDB_DEV_MONGODB_DATABASE: &str = "sportsGuide";
 const MDB_DEV_MONGODB_COLLECTION: &str = "activities";
 
-const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@localhost/postgres";
+const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@127.0.0.1/postgres";
 
-const PG_DEV_APP_URL: &str = "postgres://postgres:japama@localhost/sports_guide";
+const PG_DEV_APP_URL: &str = "postgres://postgres:japama@127.0.0.1/sports_guide";
 
 // sql files
 const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
