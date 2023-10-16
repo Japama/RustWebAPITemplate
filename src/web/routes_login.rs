@@ -33,6 +33,8 @@ async fn api_login_handler(
     } = payload;
     let root_ctx = Ctx::root_ctx();
 
+    debug!("{:<12} - USUARIO LOGIN", &username);
+
     // -- Get the user.
     let user: UserForLogin = UserBmc::first_by_username(&root_ctx, &mm, &username)
         .await?
@@ -41,8 +43,8 @@ async fn api_login_handler(
 
     // -- Validate the password.
     let Some(pwd) = user.pwd else {
-		return Err(Error::LoginFailUserHasNoPwd{ user_id });
-	};
+        return Err(Error::LoginFailUserHasNoPwd { user_id });
+    };
 
     pwd::validate_pwd(
         &EncryptContent {

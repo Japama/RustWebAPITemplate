@@ -19,7 +19,7 @@ use tracing::info;
 type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
-const MDB_DEV_MONGODB_URL: &str = "mongodb://192.168.80.131:27017";
+const MDB_DEV_MONGODB_URL: &str = "mongodb://127.0.0.1:27017";
 const MDB_DEV_MONGODB_ATLAS_URL: &str =
     "mongodb+srv://jbvc91:ICy89kEfX5PaP3ij@psg.jodkz9a.mongodb.net/?retryWrites=true&w=majority";
 const MDB_DEV_MONGODB_DATABASE: &str = "sportsGuide";
