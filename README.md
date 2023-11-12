@@ -1,4 +1,4 @@
-# SportsGuide
+# Rust Web API template
 
 
 cargo watch -q -c -w src/ -w .cargo/ -x run
