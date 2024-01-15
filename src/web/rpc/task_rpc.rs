@@ -1,9 +1,10 @@
 use crate::ctx::Ctx;
-use crate::model::task::{Task, TaskBmc, TaskForCreate, TaskForUpdate};
+use crate::model::task::{Task, TaskBmc, TaskForCreate, TaskForUpdate, TaskFilter};
 use crate::model::ModelManager;
-use crate::web::rpc::{ParamsForCreate, ParamsForUpdate, ParamsIded};
 use crate::web::Result;
 use hmac::digest::typenum::Mod;
+
+use super::params::{ParamsList, ParamsForCreate, ParamsForUpdate, ParamsIded};
 
 pub async fn create_task(
     ctx: Ctx,
@@ -18,8 +19,8 @@ pub async fn create_task(
     Ok(task)
 }
 
-pub async fn list_tasks(ctx: Ctx, mm: ModelManager) -> Result<Vec<Task>> {
-    let tasks = TaskBmc::list(&ctx, &mm).await?;
+pub async fn list_tasks(ctx: Ctx, mm: ModelManager, params: ParamsList<TaskFilter>) -> Result<Vec<Task>> {
+    let tasks = TaskBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(tasks)
 }

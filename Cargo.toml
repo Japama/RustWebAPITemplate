@@ -19,8 +19,10 @@ axum = "0.6"
 tower-http = { version = "0.4", features = ["fs", "cors"] }
 tower-cookies = "0.9"
 # -- Data
-sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
-sqlb = "0.3" # Optional
+sqlx = { version = "0.7", features = [ "runtime-tokio", "postgres", "uuid" ] }
+sea-query = "0.30"
+sea-query-binder = { version = "0.5", features = ["sqlx-postgres", "with-uuid" ] }
+modql = {version = "0.3", features = ["with-sea-query"]}
 # -- Tracing
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -35,11 +37,15 @@ time = "0.3"
 lazy-regex = "3"
 async-trait = "0.1"
 strum_macros = "0.25"
+base64 = "0.21"
+derive_more = {version = "1.0.0-beta", features = ["from"] }
+
 # -- MongoDB
 mongodb = { version = "2.6.1", features = ["bson-chrono-0_4"] }
 bson = { version = "2", features = ["chrono-0_4"] } # Needed for using chrono datetime in doc
 
 futures = "0.3"
+
 
 [dev-dependencies]
 anyhow = "1"

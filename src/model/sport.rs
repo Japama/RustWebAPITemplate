@@ -3,7 +3,7 @@ use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::{Error, Result};
 use serde::{Deserialize, Serialize};
-use sqlb::Fields;
+use modql::field::{Fields, HasFields};
 use sqlx::FromRow;
 
 // region:    --- Activity Types

@@ -1,5 +1,6 @@
 // region: Modules
-
+mod params;
+mod params_mongo;
 mod activity_rpc;
 mod task_rpc;
 
@@ -8,7 +9,7 @@ use crate::model::ModelManager;
 use crate::web::rpc::activity_rpc::{
     create_activity, delete_activity, get_activity, list_activities, update_activity,
 };
-use crate::web::rpc::task_rpc::{create_task, delete_task, list_tasks, update_task};
+use crate::web::rpc::task_rpc::{create_task, list_tasks, delete_task, update_task};
 use crate::web::{Error, Result};
 use axum::extract::State;
 use axum::response::{IntoResponse, Response};
@@ -27,32 +28,6 @@ struct RpcRequest {
     id: Option<Value>,
     method: String,
     params: Option<Value>,
-}
-
-#[derive(Deserialize)]
-pub struct ParamsForCreate<D> {
-    data: D,
-}
-
-#[derive(Deserialize)]
-pub struct ParamsForUpdate<D> {
-    id: i64,
-    data: D,
-}
-#[derive(Deserialize)]
-pub struct ParamsForUpdateMongo<D> {
-    id: String,
-    data: D,
-}
-
-#[derive(Deserialize)]
-pub struct ParamsIded {
-    id: i64,
-}
-
-#[derive(Deserialize)]
-pub struct ParamsIdedMongo {
-    id: String,
 }
 
 // endregion: JSON-RPC Request Body
@@ -121,7 +96,7 @@ async fn _rpc_handler(ctx: Ctx, mm: ModelManager, rpc_req: RpcRequest) -> Result
     let result_json: Value = match rpc_method.as_str() {
         // Task RPC methods
         "create_task" => exec_rpc_fn!(create_task, ctx, mm, rpc_params),
-        "list_tasks" => exec_rpc_fn!(list_tasks, ctx, mm),
+        "list_tasks" => exec_rpc_fn!(list_tasks, ctx, mm, rpc_params),
         "update_task" => exec_rpc_fn!(update_task, ctx, mm, rpc_params),
         "delete_task" => exec_rpc_fn!(delete_task, ctx, mm, rpc_params),
 
