@@ -4,7 +4,7 @@
 [env]
 
 # Scope down tracing, to filter out external lib tracing
-RUST_LOG="sports_guide=debug"
+RUST_LOG="web_server=debug,lib_core=debug,lib_auth=debug,lib_utils=debug"
 
 # -- Service Environment Variables
 # IMPORTANT:
