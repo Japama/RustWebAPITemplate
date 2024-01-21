@@ -10,7 +10,7 @@ use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
-use lib_auth::pwd::{self, ContentToHash};
+use lib_auth::pwd_legacy::{self, ContentToHash};
 
 // region:    --- User Types
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
@@ -35,7 +35,7 @@ pub struct UserForLogin {
     pub id: i64,
     pub username: String,
 
-    // -- pwd and token info
+    // -- pwd_legacy and token info
     pub pwd: Option<String>, // encrypted, #_scheme_id_#....
     pub pwd_salt: Uuid,
     pub token_salt: Uuid,
@@ -111,7 +111,7 @@ impl UserBmc {
 
         // -- Prep password
         let user: UserForLogin = Self::get(ctx, mm, id).await?;
-        let pwd = pwd::hash_pwd(&ContentToHash {
+        let pwd = pwd_legacy::hash_pwd(&ContentToHash {
             content: pwd_clear.to_string(),
             salt: user.pwd_salt,
         })?;

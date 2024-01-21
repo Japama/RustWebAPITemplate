@@ -18,7 +18,7 @@ async fn check_task() -> Result<()> {
         "/api/login",
         json!({
             "username": "demo1",
-            "pwd": "welcome"
+            "pwd_legacy": "welcome"
         }),
     );
     req_login.await?.print().await?;
@@ -109,7 +109,7 @@ async fn check_activity() -> Result<()> {
         "/api/login",
         json!({
             "username": "demo1",
-            "pwd": "welcome"
+            "pwd_legacy": "welcome"
         }),
     );
     req_login.await?.print().await?;

@@ -2,7 +2,7 @@ use crate::web::{self, remove_token_cookie, Error, Result};
 use axum::extract::State;
 use axum::routing::post;
 use axum::{Json, Router};
-use lib_auth::pwd::{self, ContentToHash};
+use lib_auth::pwd_legacy::{self, ContentToHash};
 use lib_core::ctx::Ctx;
 use lib_core::model::user::{UserBmc, UserForLogin};
 use lib_core::model::ModelManager;
@@ -43,7 +43,7 @@ async fn api_login_handler(
         return Err(Error::LoginFailUserHasNoPwd { user_id });
     };
 
-    pwd::validate_pwd(
+    pwd_legacy::validate_pwd(
         &ContentToHash {
             salt: user.pwd_salt,
             content: pwd_clear.clone(),

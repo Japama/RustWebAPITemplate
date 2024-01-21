@@ -1,4 +1,4 @@
-use crate::pwd::{ContentToHash, Error, Result};
+use crate::pwd_legacy::{ContentToHash, Error, Result};
 use hmac::{Hmac, Mac};
 use lib_utils::b64::b64u_encode;
 use sha2::Sha512;

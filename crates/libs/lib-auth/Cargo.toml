@@ -14,14 +14,15 @@ workspace = true
 lib-utils = { path = "../../libs/lib-utils"}
 # -- Json
 serde = { version = "1", features = ["derive"] }
-# -- Hashing (pwd-scheme01 & Token)
+# -- Hashing (pwd_legacy-scheme01 & Token)
 hmac = "0.12"
 sha2 = "0.10"
-# -- Hashing (pwd-scheme02)
+# -- Hashing (pwd_legacy-scheme02)
 argon2 = {version="0.5", features=["std"]}
 # -- Others
 uuid = {version = "1", features = ["v4","fast-rng",]}
 lazy-regex = "3"
+derive_more = {version = "1.0.0-beta", features = ["from"]}
 
 [dev-dependencies]
 anyhow = "1"
