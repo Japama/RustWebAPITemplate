@@ -3,9 +3,11 @@
 mod error;
 mod scheme;
 
+use std::str::FromStr;
+use lazy_regex::regex_captures;
 pub use self::error::{Error, Result};
 
-use crate::pwd::scheme::get_scheme;
+use crate::pwd::scheme::{DEFAULT_SCHEME, get_scheme, SchemeStatus};
 use uuid::Uuid;
 // endregion: -- Modules
 
@@ -22,14 +24,23 @@ pub struct ContentToHash {
 
 /// Hash the password with the default scheme.
 pub fn hash_pwd(to_hash: &ContentToHash) -> Result<String> {
-    // FIXME
-    Ok("FIXME hash_pwd".to_string())
+    hash_for_scheme(DEFAULT_SCHEME, to_hash)
 }
 
 /// Validate if an ContentToHash matches.
-pub fn validate_pwd(to_has: &ContentToHash, pwd_ref: &str) -> Result<String> {
-    // FIXME
-    Ok("FUXNE validate_pwd".to_string())
+pub fn validate_pwd(to_hash: &ContentToHash, pwd_ref: &str) -> Result<SchemeStatus> {
+    let PwdParts{
+        scheme_name,
+        hashed
+    } = pwd_ref.parse()?;
+
+    validate_for_scheme(&scheme_name, to_hash, &hashed)?;
+
+    if scheme_name == DEFAULT_SCHEME{
+        Ok(SchemeStatus::Ok)
+    } else{
+        Ok(SchemeStatus::Outdated)
+    }
 }
 
 // endregion: Public Functions
@@ -50,7 +61,28 @@ fn validate_for_scheme(
     Ok(())
 }
 
-struct PwdParts
+struct PwdParts{
+    /// The scheme only
+    scheme_name: String,
+    /// The hashed password
+    hashed: String,
+}
+
+impl FromStr for PwdParts{
+    type Err = Error;
+
+    fn from_str(pwd_with_scheme: &str) -> Result<Self> {
+        regex_captures!(
+            r#"^#(\w+)#(.*)"#, // a literal regex
+            pwd_with_scheme
+        )
+            .map(|(_, scheme, hashed)| Self{
+                scheme_name: scheme.to_string(),
+                hashed:     hashed.to_string()
+            })
+            .ok_or(Error::PwdWithSchemeFailedParse)
+    } 
+}
 
 // endregion: Privates
 
