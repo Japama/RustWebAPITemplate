@@ -6,7 +6,7 @@ use serde_json::json;
 #[tokio::main]
 async fn main() -> Result<()> {
     check_task().await?;
-    // check_activity().await?;
+    check_activity().await?;
 
     Ok(())
 }

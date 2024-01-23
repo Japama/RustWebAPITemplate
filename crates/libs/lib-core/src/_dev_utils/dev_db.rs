@@ -82,7 +82,10 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
         .await?
         .unwrap();
     UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
-    info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
+    info!(
+        "{:<12} - init_dev_db - set demo1 pwd",
+        "FOR-DEV-ONLY"
+    );
 
     Ok(())
 }

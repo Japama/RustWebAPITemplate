@@ -1,19 +1,14 @@
-use crate::pwd::scheme;
-use derive_more::From;
 use serde::Serialize;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize, From)]
+#[derive(Debug, Serialize)]
 pub enum Error {
-    // Modules
-    #[from]
-    Scheme(scheme::Error),
-
-    PwdWithSchemeFailedParse,
-
-    FailSpawnBlockForValidate,
-    FailSpawnBlockForHash,
+    Key,
+    Salt,
+    Hash,
+    PwdValidate,
+    SchemeNotFound(String),
 }
 
 // region:    --- Error Boilerplate
