@@ -237,7 +237,7 @@ mod tests {
         ActivityBmc::create(&ctx, &mm, activity_c2).await?;
 
         // -- Exec
-        let activities = ActivityBmc::list(&ctx, &mm, None, None).await?;
+        let activities = ActivityBmc::list(&ctx, &mm).await?;
 
         // -- Check
         assert_eq!(activities.len(), 2, "number of seeded activities.");
