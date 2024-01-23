@@ -23,6 +23,10 @@ argon2 = {version="0.5", features=["std"]}
 uuid = {version = "1", features = ["v4","fast-rng",]}
 lazy-regex = "3"
 derive_more = {version = "1.0.0-beta", features = ["from"]}
+enum_dispatch = "0.3"
+
+# -- Async
+tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]
 anyhow = "1"

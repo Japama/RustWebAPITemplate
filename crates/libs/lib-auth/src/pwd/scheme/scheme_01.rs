@@ -61,7 +61,7 @@ mod tests {
             salt: fx_salt,
         };
         // TODO: Need to fix fx_key, and precompute fx_res.
-        let fx_res = "qO9A90161DoewhNXFwVcnAaljRIVnajvd5zsVDrySCwxpoLwVCACzaz-8Ev2ZpI8RackUTLBVqFI6H5oMe-OIg";
+        let fx_res = "BTjbKWII7n9LvYa_Wo7bvXkYZrIeFuhj6a7yCflDqkEo18hzrkn-dG6ZPEvx4bfD-z2Yc1LBc1o1GqLPJluhjQ";
 
         // -- Exec
         let res = hash(fx_key, &fx_to_hash)?;

@@ -9,7 +9,11 @@ pub enum Error {
     // Modules
     #[from]
     Scheme(scheme::Error),
+
     PwdWithSchemeFailedParse,
+
+    FailSpawnBlockForValidate,
+    FailSpawnBlockForHash,
 }
 
 // region:    --- Error Boilerplate
