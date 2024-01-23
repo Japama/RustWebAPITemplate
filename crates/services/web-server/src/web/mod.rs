@@ -3,6 +3,7 @@
 mod error;
 pub mod mw_auth;
 pub mod mw_res_map;
+pub mod mw_stamp;
 pub mod routes_login;
 pub mod routes_rpc;
 pub mod routes_static;
@@ -30,7 +31,7 @@ fn set_token_cookie(cookies: &Cookies, user: &str, salt: Uuid) -> Result<()> {
 }
 
 fn remove_token_cookie(cookies: &Cookies) -> Result<()> {
-    let mut cookie = Cookie::named(AUTH_TOKEN);
+    let mut cookie = Cookie::from(AUTH_TOKEN);
     cookie.set_path("/");
 
     cookies.remove(cookie);

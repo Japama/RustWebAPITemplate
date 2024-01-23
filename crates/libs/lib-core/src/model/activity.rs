@@ -1,4 +1,5 @@
 use bson::oid::ObjectId;
+use modql::filter::{FilterNodes, OpValsInt64};
 use serde::{Deserialize, Serialize};
 use serde_json::{from_value, to_value, Value};
 use std::str::FromStr;
@@ -59,6 +60,10 @@ pub struct ActivityForUpdate {
     tags: Vec<String>,
 }
 
+#[derive(FilterNodes, Deserialize, Default, Debug)]
+pub struct ActivityFilter {
+    id: Option<OpValsInt64>,
+}
 // endregion: Activity types
 
 pub struct ActivityBmc;
@@ -232,7 +237,7 @@ mod tests {
         ActivityBmc::create(&ctx, &mm, activity_c2).await?;
 
         // -- Exec
-        let activities = ActivityBmc::list(&ctx, &mm).await?;
+        let activities = ActivityBmc::list(&ctx, &mm, None, None).await?;
 
         // -- Check
         assert_eq!(activities.len(), 2, "number of seeded activities.");

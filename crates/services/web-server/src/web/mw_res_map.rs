@@ -1,11 +1,13 @@
 use crate::log::log_request;
-use crate::web;
 use crate::web::mw_auth::CtxW;
+use crate::web::mw_stamp::ReqStamp;
 use crate::web::routes_rpc::RpcInfo;
+use crate::web::{self};
 use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::{json, to_value};
+use std::sync::Arc;
 use tracing::debug;
 use uuid::Uuid;
 
@@ -13,6 +15,7 @@ pub async fn mw_reponse_map(
     ctx: Option<CtxW>,
     uri: Uri,
     req_method: Method,
+    req_stamp: ReqStamp,
     res: Response,
 ) -> Response {
     let ctx = ctx.map(|ctx| ctx.0);
@@ -20,10 +23,10 @@ pub async fn mw_reponse_map(
     debug!("{:<12} - mw_reponse_map", "RES_MAPPER");
     let uuid = Uuid::new_v4();
 
-    let rpc_info = res.extensions().get::<RpcInfo>();
+    let rpc_info = res.extensions().get::<Arc<RpcInfo>>().map(Arc::as_ref);
 
     // -- Get the eventual response error.
-    let web_error = res.extensions().get::<web::Error>();
+    let web_error = res.extensions().get::<Arc<web::Error>>().map(Arc::as_ref);
     let client_status_error = web_error.map(|se| se.client_status_and_error());
 
     // -- If client error, build the new reponse.
@@ -50,14 +53,13 @@ pub async fn mw_reponse_map(
             // Build the new response from the client_error_body
             (*status_code, Json(client_error_body)).into_response()
         });
-
     // -- Build and log the server log line.
     let client_error = client_status_error.unzip().1;
     // TODO: Need to hander if log_request fail (but should not fail request)
     let _ = log_request(
-        uuid,
         req_method,
         uri,
+        req_stamp,
         rpc_info,
         ctx,
         web_error,

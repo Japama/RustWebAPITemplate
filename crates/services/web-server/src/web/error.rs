@@ -6,6 +6,7 @@ use lib_auth::{pwd, token};
 use lib_core::model;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
+use std::sync::Arc;
 use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -26,6 +27,9 @@ pub enum Error {
     // -- CtxExtError
     #[from]
     CtxExt(web::mw_auth::CtxExtError),
+
+    // -- ReqStamp
+    ReqStampNotInResponseExt,
 
     // -- Modules
     #[from]
@@ -51,7 +55,7 @@ impl IntoResponse for Error {
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
         // Insert the Error into the reponse.
-        response.extensions_mut().insert(self);
+        response.extensions_mut().insert(Arc::new(self));
 
         response
     }

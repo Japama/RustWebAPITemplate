@@ -26,6 +26,8 @@ pub use self::error::{Error, Result};
 pub mod activity;
 mod base;
 mod error;
+pub mod modql_utils;
+pub mod project;
 pub mod sport;
 mod store;
 pub mod task;

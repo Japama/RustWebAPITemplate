@@ -1,5 +1,5 @@
-use modql::field::{Fields, HasFields};
-use sea_query::{Expr, Iden, PostgresQueryBuilder, Query, SimpleExpr};
+use modql::field::{Field, Fields, HasFields};
+use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
@@ -7,7 +7,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::ctx::Ctx;
-use crate::model::base::{self, PostgresDbBmc};
+use crate::model::base::{self, add_timestamps_for_update, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
 use lib_auth::pwd::{self, ContentToHash};
@@ -117,11 +117,16 @@ impl UserBmc {
         })
         .await?;
 
+        // -- Prep the data
+        let mut fields = Fields::new(vec![Field::new(UserIden::Pwd, pwd.into())]);
+        add_timestamps_for_update(&mut fields, ctx.user_id());
+
         // -- Build query
+        let fields = fields.for_sea_update();
         let mut query = Query::update();
         query
             .table(Self::table_ref())
-            .value(UserIden::Pwd, SimpleExpr::from(pwd))
+            .values(fields)
             .and_where(Expr::col(UserIden::Id).eq(id));
 
         // -- Exec query

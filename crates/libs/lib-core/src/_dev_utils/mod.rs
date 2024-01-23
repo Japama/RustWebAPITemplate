@@ -4,6 +4,7 @@ use tokio::sync::OnceCell;
 use tracing::info;
 
 use crate::ctx::Ctx;
+use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::{self, ModelManager};
 
@@ -39,7 +40,12 @@ pub async fn init_test() -> ModelManager {
     mm.clone()
 }
 
-pub async fn seed_tasks(ctx: &Ctx, mm: &ModelManager, titles: &[&str]) -> model::Result<Vec<Task>> {
+pub async fn seed_tasks(
+    ctx: &Ctx,
+    mm: &ModelManager,
+    project_id: i64,
+    titles: &[&str],
+) -> model::Result<Vec<Task>> {
     let mut tasks = Vec::new();
 
     for title in titles {
@@ -47,6 +53,7 @@ pub async fn seed_tasks(ctx: &Ctx, mm: &ModelManager, titles: &[&str]) -> model:
             ctx,
             mm,
             TaskForCreate {
+                project_id,
                 title: title.to_string(),
             },
         )
@@ -57,4 +64,15 @@ pub async fn seed_tasks(ctx: &Ctx, mm: &ModelManager, titles: &[&str]) -> model:
     }
 
     Ok(tasks)
+}
+
+pub async fn seed_project(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
+    ProjectBmc::create(
+        ctx,
+        mm,
+        ProjectForCreate {
+            name: name.to_string(),
+        },
+    )
+    .await
 }
